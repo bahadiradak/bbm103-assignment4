@@ -1,0 +1,341 @@
+# -*- coding: utf-8 -*-
+import json
+import string
+import numpy as np
+import matplotlib.pyplot as plt
+import numpy as np
+import inspect, os
+from datetime import datetime
+from collections import Counter
+from operator import itemgetter
+from matplotlib.dates import DateFormatter
+     
+f=open(os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe()))) + "/tweet_data.json", "r")
+
+hepsi=[]
+tarih=[]
+tarih2=[]
+twt3=[]
+lines=f.readlines()
+for k in lines:
+    
+    twt2=[]
+    tweet = json.loads(k) # load it as Python dict
+    created_at_format = '%a %b %d %H:%M:%S +0000 %Y'
+    str=tweet['text']#tweet
+    str=str.lower()
+    L=str.split(" ");
+    date=tweet["created_at"];#date-time in ISO format
+    dt=datetime.strptime(date, "%a %b %d %H:%M:%S +0000 %Y") #reading date in ISO format
+    dt_without_sec = dt.replace(second=0,microsecond=0)
+    punctuation = list(string.punctuation)
+    stop = punctuation+[ 'a','an','the','rt', 'via','to','of','for','and','or','i','in','at','on','out','with','by','de',' ','is','am','are','my','your','our','us','me','you','it','','the','no','have','has','we','her','his','them','when','who','where','which','how','that','not','this','&amp;','from','new','la','but']
+            
+    for b in L:
+        if b not in stop:
+            hepsi.append(b.encode('utf8'))
+    
+    tarih.append(dt_without_sec)
+    
+    a=str.encode('utf8')
+    
+    for s in L:
+        twt2.append(s.encode('utf8'))
+  
+    twt3.append(twt2) 
+         
+for i in tarih:
+    tarih2.append("%s" %i) 
+           
+################################################################################    
+
+sayman=Counter(hepsi)
+
+import operator
+sorted_sayman = sorted(sayman.items(), key=operator.itemgetter(1),reverse=True)
+
+max20=[]
+i=0
+while i < 20:
+    max20.append(sorted_sayman[i])
+    i=i+1
+
+x_axis=[]
+for t in range(len(max20)):
+    a=max20[t][0]
+    x_axis.append(a)
+
+y_axis=[]    
+for r in range(len(max20)):
+    b=max20[r][1]
+    y_axis.append(b)
+       
+fig=plt.figure()    
+width = .78
+ind=np.arange(len(y_axis))
+plt.bar(ind,y_axis)
+plt.xticks(ind + width , x_axis)
+fig.autofmt_xdate(bottom=0.2, rotation=90, ha='right')
+plt.title("Tweet Miner"+"\n")
+plt.ylabel("Term Frequencies"+"\n")
+plt.savefig("term_frequencies.png")
+plt.show()
+
+v=open("term_frequencies.txt","w")
+
+for u in range(len(max20)):
+    v.write("("+"'"+x_axis[u]+"'"+","+" ")
+    v.write('%d' %y_axis[u])
+    v.write(")")
+    v.write("\n")
+
+v.close()
+
+################################################################################
+
+max5=[]
+i=0
+while i < 5:  
+    max5.append(sorted_sayman[i][0])
+    i=i+1
+
+mydict={}
+for i in range(len(twt3)):
+     if tarih2[i] not in mydict.keys():
+         mydict[tarih2[i]]=twt3[i]
+     elif tarih2[i] in mydict.keys():
+         mydict[tarih2[i]]=mydict[tarih2[i]]+twt3[i]
+baho={}
+for k in mydict.keys():
+    for i in max5:
+        if i in mydict[k]:
+            a=mydict[k].count(i)
+            baho[(k,i)]=a
+        elif i not in mydict[k]:
+            pass
+
+computer=[]
+computer_date=[]
+computer_count=[]
+
+student=[]
+student_date=[]
+student_count=[]
+
+university=[]
+university_date=[]
+university_count=[]
+
+raspberry=[]
+raspberry_date=[]
+raspberry_count=[]
+
+science=[]
+science_date=[]
+science_count=[]
+            
+for i in sorted(baho.items(),key=itemgetter(0)):
+    if i[0][1] == max5[0]:
+        bos0=[]
+        bos0.append(i[0][0])
+        computer_date.append('%s' %i[0][0])
+        bos0.append(i[0][1])
+        bos0.append(i[1])
+        computer_count.append(i[1])
+        computer.append(bos0)
+        
+    if i[0][1] == max5[1]:
+        bos1=[]
+        bos1.append(i[0][0])
+        student_date.append('%s' %i[0][0])
+        bos1.append(i[0][1])
+        bos1.append(i[1])
+        student_count.append(i[1])
+        student.append(bos1)
+        
+    if i[0][1] == max5[2]:
+        bos2=[]
+        bos2.append(i[0][0])
+        university_date.append('%s' %i[0][0])
+        bos2.append(i[0][1])
+        bos2.append(i[1])
+        university_count.append(i[1])
+        university.append(bos2)
+        
+    if i[0][1] == max5[3]:
+        bos3=[]
+        bos3.append(i[0][0])
+        raspberry_date.append('%s' %i[0][0])
+        bos3.append(i[0][1])
+        bos3.append(i[1])
+        raspberry_count.append(i[1])
+        raspberry.append(bos3)
+        
+    if i[0][1] == max5[4]:
+        bos4=[]
+        bos4.append(i[0][0])
+        science_date.append('%s' %i[0][0])
+        bos4.append(i[0][1])
+        bos4.append(i[1])
+        science_count.append(i[1])
+        science.append(bos4)
+
+z=open("term_frequencies_overtime.txt","w")
+
+for a in computer:
+    z.write('%s' %a[1])
+    z.write(" ")
+    z.write('%s' %a[0])
+    z.write(" ")
+    z.write('%s' %a[2])
+    z.write("\n")
+    
+for b in student:
+    z.write('%s' %b[1])
+    z.write(" ")
+    z.write('%s' %b[0])
+    z.write(" ")
+    z.write('%s' %b[2])
+    z.write("\n")
+    
+for c in university:
+    z.write('%s' %c[1])
+    z.write(" ")
+    z.write('%s' %c[0])
+    z.write(" ")
+    z.write('%s' %c[2])
+    z.write("\n")
+    
+for d in raspberry:
+    z.write('%s' %d[1])
+    z.write(" ")
+    z.write('%s' %d[0])
+    z.write(" ")
+    z.write('%s' %d[2])
+    z.write("\n")
+    
+for e in science:
+    z.write('%s' %e[1])
+    z.write(" ")
+    z.write('%s' %e[0])
+    z.write(" ")
+    z.write('%s' %e[2])
+    z.write("\n")
+                                                    
+z.close()
+
+x_axis=[]
+for i in tarih:
+    if i not in x_axis:
+        x_axis.append(i)
+    
+
+fig=plt.figure() 
+plt.plot(x_axis,computer_count,label=max5[0],linewidth=2)
+plt.plot(x_axis,student_count,label=max5[1],linewidth=2)
+plt.plot(x_axis,university_count,label=max5[2],linewidth=2)
+plt.plot(x_axis,raspberry_count,label=max5[3],linewidth=2)
+plt.plot(x_axis,science_count,label=max5[4],linewidth=2)
+formatter = DateFormatter('%H:%M')
+plt.gcf().axes[0].xaxis.set_major_formatter(formatter)
+fig.autofmt_xdate(bottom=0.2, rotation=0, ha='right')
+plt.xlabel('Time')
+plt.ylabel('Frequenct of occurrence'+"\n")
+plt.legend()
+plt.legend(loc=1,prop={'size':11})
+plt.savefig("term_frequencies_overtime.png")
+plt.show() 
+
+
+################################################################################
+
+max10=[]
+i=0
+while i < 10:  
+    max10.append(sorted_sayman[i][0])
+    i=i+1                        
+
+genel_matrix=[]        
+rolls = [ [r1,r2] for r1 in range(10) for r2 in range(10) if r1 != r2]
+for i in rolls:
+    matrix=[]
+    matrix.append(max10[i[0]])
+    matrix.append("-")
+    matrix.append(max10[i[1]])
+    genel_matrix.append(matrix)
+
+len_genel_twt3=[]
+graf=[]
+for i in genel_matrix:
+    genel_twt3=[]
+    for j in twt3:   
+        if i[0] in j and i[2] in j:
+            genel_twt3.append(j)
+    a=len(genel_twt3)
+    len_genel_twt3.append(i)
+    len_genel_twt3.append(a)
+    graf.append(a)
+
+yaz=[]
+g=0
+while g<len(len_genel_twt3):
+    deneme=[]
+    deneme.append(len_genel_twt3[g])
+    g=g+1
+    deneme.append(len_genel_twt3[g])
+    yaz.append(deneme)
+    g=g+1
+                        
+y=open("term_cooccurrences.txt","w")
+
+for i in yaz:
+    for j in i[0]:
+        y.write(j)
+    y.write(" ")
+    y.write('%s' %i[1])
+    y.write("\n")
+    
+y.close()
+    
+graf_matrix=[]        
+iskelet_matrix = [ [r1,r2] for r1 in range(10) for r2 in range(10) ]
+
+for i in iskelet_matrix:
+    matrix1=[]
+    matrix1.append(max10[i[0]])
+    matrix1.append(max10[i[1]])
+    graf_matrix.append(matrix1)
+     
+len_genel_twt4=[]
+for f in graf_matrix:
+    genel_twt4=[]
+    for j in twt3:   
+        if f[0] in j and f[1] in j:
+            genel_twt4.append(j)
+    a=len(genel_twt4)
+    len_genel_twt4.append(a)
+
+real_matrix=[]      
+for j in range(10):
+    bos=[]    
+    for i in range(10):
+        bos.append(len_genel_twt4[0])
+        len_genel_twt4.remove(len_genel_twt4[0])
+        
+    real_matrix.append(bos)
+ 
+alpha = [m for m in max10]
+data = real_matrix
+fig = plt.figure()
+plt.clf()
+ax = fig.add_subplot(111)
+cax = ax.matshow(data, interpolation='nearest')
+fig.colorbar(cax)
+width = len(real_matrix)
+height = len(real_matrix[0])
+alphabet =[i for i in max10]
+plt.xticks(range(width), alphabet[:width])
+plt.yticks(range(height), alphabet[:height])
+fig.autofmt_xdate( bottom=0.01,rotation=40, ha='left')
+plt.savefig("term_cooccurrences.png")
+plt.show()
